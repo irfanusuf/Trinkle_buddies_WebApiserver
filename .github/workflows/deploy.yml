@@ -21,11 +21,13 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build project
+      - name: Build 
+        working-directory: ./P10_WebApi
         run: dotnet build --configuration Release
 
       - name: Publish project
-        run: dotnet publish ./P10_WebApi/P10_WebApi.csproj --configuration Release --output ./publish
+        working-directory: ./P10_WebApi
+        run: dotnet publish ./P10_WebApi.csproj --configuration Release --output ./publish
 
       - name: Ensure logs folder exists
         run: mkdir -p ./publish/logs
