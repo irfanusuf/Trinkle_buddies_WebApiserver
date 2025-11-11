@@ -28,7 +28,7 @@ jobs:
 
       - name: Publish project
         working-directory: ./P10_WebApi
-        run: dotnet publish ./P10_WebApi.csproj --configuration Release --output ./publish
+        run: dotnet publish ./P10_WebApi.csproj --configuration Release --output ../publish
 
       - name: Ensure logs folder exists
         run: mkdir -p ./publish/logs
