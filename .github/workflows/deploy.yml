@@ -19,6 +19,7 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore dependencies
+        working-directory: ./P10_WebApi
         run: dotnet restore
 
       - name: Build 
