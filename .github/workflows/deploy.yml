@@ -22,11 +22,11 @@ jobs:
         run: dotnet restore
 
       - name: Build 
-        working-directory: ./P10_WebApi/P10_WebApi
+        working-directory: ./P10_WebApi
         run: dotnet build --configuration Release
 
       - name: Publish project
-        working-directory: ./P10_WebApi/P10_WebApi
+        working-directory: ./P10_WebApi
         run: dotnet publish ./P10_WebApi.csproj --configuration Release --output ./publish
 
       - name: Ensure logs folder exists
