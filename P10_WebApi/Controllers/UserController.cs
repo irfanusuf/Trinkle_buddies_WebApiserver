@@ -1,7 +1,10 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using P0_ClassLibrary.Interfaces;
+using P10_WebApi.Attributes;
 using P10_WebApi.Models;
 using P10_WebApi.Models.Dtos;
 using P10_WebApi.Services;
@@ -204,13 +207,40 @@ namespace P10_WebApi.Controllers
 
         }
 
+        [Authroize]
+        [HttpGet("Follow")]
 
-        [HttpGet]
-
-        public IActionResult Follow()
+        public async Task<IActionResult> Follow(string UserId)
         {
+            string? loggedInUserId = HttpContext.Items["userId"] as string;
 
-            return Ok();
+
+            var filter = Builders<User>.Filter.Eq(u => u.UserId,   UserId );
+
+            var userToFollow = await db.Users.Find(filter).FirstOrDefaultAsync();
+
+            if (userToFollow == null)
+            {
+                return NotFound(new { message = "Requested  User not Found !" });
+            }
+
+           var alreadFollower =   userToFollow.Followers.Contains(ObjectId.Parse(loggedInUserId));
+
+            if (alreadFollower)
+            {
+                return BadRequest(new { message = "U are already following this account" });
+            }
+
+
+            var filterloggedInUser = Builders<User>.Filter.Eq(u => u.UserId, loggedInUserId);
+            
+            var update = Builders<User>.Update.Push(u => u.Followers, ObjectId.Parse(loggedInUserId) );
+
+            var updateLoggedInUser = Builders<User>.Update.Push(u => u.Following, ObjectId.Parse(UserId));
+            
+            await db.Users.UpdateOneAsync(filter, update);
+            await db.Users.UpdateOneAsync(filterloggedInUser, updateLoggedInUser);
+            return Ok(new{message = "Followed Succesfully!"});
         }
         
 
