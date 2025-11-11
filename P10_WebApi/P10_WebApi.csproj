@@ -23,12 +23,8 @@
 
 
     <ItemGroup>
+      <Folder Include=".git/workflows/" />
       <Folder Include="Services/" />
-    </ItemGroup>
-
-
-    <ItemGroup>
-      <None Include="dsdsds/workflows/deploy.yml" />
     </ItemGroup>
 
 
