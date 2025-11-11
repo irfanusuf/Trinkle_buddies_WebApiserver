@@ -169,39 +169,57 @@ namespace P10_WebApi.Controllers
                 return BadRequest(new { message = "Passwords Does not match" });
             }
 
-            var filter = Builders<User>.Filter.Eq(u => u.Email , req.Email);
+            var filter = Builders<User>.Filter.Eq(u => u.Email, req.Email);
 
             var user = await db.Users.Find(filter).FirstOrDefaultAsync();
 
 
             var verifyOtp = BCrypt.Net.BCrypt.Verify(req.OTP, user.OTP);
 
-            if (verifyOtp  && user.OTPExpiry > DateTime.UtcNow)
+            if (verifyOtp && user.OTPExpiry > DateTime.UtcNow)
             {
-              
-            var encryptPass = BCrypt.Net.BCrypt.HashPassword(req.Password);
+
+                var encryptPass = BCrypt.Net.BCrypt.HashPassword(req.Password);
 
 
-            var update = Builders<User>.Update
-            .Set(u => u.Password, encryptPass)
-            .Set(u => u.OTP , null)
-            .Set(u => u.OTPExpiry , null);
+                var update = Builders<User>.Update
+                .Set(u => u.Password, encryptPass)
+                .Set(u => u.OTP, null)
+                .Set(u => u.OTPExpiry, null);
 
 
-            await db.Users.UpdateOneAsync(filter, update);
+                await db.Users.UpdateOneAsync(filter, update);
 
-            return Ok(new { message = "Password Changed Successfully !" });
+                return Ok(new { message = "Password Changed Successfully !" });
 
             }
             else
             {
-                
-            return BadRequest(new { message = "Incorrect otp or otp is  Expired !" });
+
+                return BadRequest(new { message = "Incorrect otp or otp is  Expired !" });
             }
 
 
 
 
+        }
+
+
+        [HttpGet]
+
+        public IActionResult Follow()
+        {
+
+            return Ok();
+        }
+        
+
+           [HttpGet]
+        
+        public IActionResult UnFollow()
+        {
+
+            return Ok();
         }
 
 
