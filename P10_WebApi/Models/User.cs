@@ -18,18 +18,16 @@ public class User : BaseEntity
     public required string Password { get; set; }
     public string? ProfilePic { get; set; }
     public string? Bio { get; set; }
+
+    public bool IsPrivate {get ; set;} = false;
     public string? OTP { get; set; }
     public DateTime? OTPExpiry { get; set; }
-
-
     public List<ObjectId> Followers { get; set; } = [];
-
     public List<ObjectId> Following { get; set; } = [];
     public List<ObjectId> Posts { get; set; } = [];   // array of postids
 
+    
     public List<ObjectId> Comments { get; set; } = []; // array of commentIds
-
-
     public List<ObjectId> LikesGiven { get; set; } = [];  // array of postIds of those post which are liked by this user
 
 }

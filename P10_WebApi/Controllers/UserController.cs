@@ -208,43 +208,54 @@ namespace P10_WebApi.Controllers
         }
 
         [Authroize]
-        [HttpGet("Follow")]
+        [HttpGet("FollowUnfollow")]
 
-        public async Task<IActionResult> Follow(string UserId)
+        public async Task<IActionResult> FollowUnFollow(string UserId)
         {
             string? loggedInUserId = HttpContext.Items["userId"] as string;
 
+            if(loggedInUserId == UserId)
+            {
+                return BadRequest(new { message = "cant follow your own account" });
+            }
 
-            var filter = Builders<User>.Filter.Eq(u => u.UserId,   UserId );
+            var filterUserToFollow = Builders<User>.Filter.Eq(u => u.UserId, UserId);
+            var filterloggedInUser = Builders<User>.Filter.Eq(u => u.UserId, loggedInUserId);
 
-            var userToFollow = await db.Users.Find(filter).FirstOrDefaultAsync();
+            User userToFollow = await db.Users.Find(filterUserToFollow).FirstOrDefaultAsync();
 
             if (userToFollow == null)
             {
                 return NotFound(new { message = "Requested  User not Found !" });
             }
+           bool alreadyFollower =   userToFollow.Followers.Contains(ObjectId.Parse(loggedInUserId));
 
-           var alreadFollower =   userToFollow.Followers.Contains(ObjectId.Parse(loggedInUserId));
-
-            if (alreadFollower)
+            if (alreadyFollower)
             {
-                return BadRequest(new { message = "U are already following this account" });
+             var updateUserToUnFollow = Builders<User>.Update.Pull(u => u.Followers, ObjectId.Parse(loggedInUserId) );
+            var updateLoggedInUserUnFollow = Builders<User>.Update.Pull(u => u.Following, ObjectId.Parse(UserId));
+
+            await db.Users.UpdateOneAsync(filterUserToFollow, updateUserToUnFollow);
+            await db.Users.UpdateOneAsync(filterloggedInUser, updateLoggedInUserUnFollow);
+            return Ok(new { message = "Unfollowed Succesfully!" });
             }
 
-
-            var filterloggedInUser = Builders<User>.Filter.Eq(u => u.UserId, loggedInUserId);
-            
-            var update = Builders<User>.Update.Push(u => u.Followers, ObjectId.Parse(loggedInUserId) );
+            var updateUserToFollow = Builders<User>.Update.Push(u => u.Followers, ObjectId.Parse(loggedInUserId) );
 
             var updateLoggedInUser = Builders<User>.Update.Push(u => u.Following, ObjectId.Parse(UserId));
+
+            await db.Users.UpdateOneAsync(filterUserToFollow, updateUserToFollow);
             
-            await db.Users.UpdateOneAsync(filter, update);
             await db.Users.UpdateOneAsync(filterloggedInUser, updateLoggedInUser);
+
             return Ok(new{message = "Followed Succesfully!"});
         }
-        
 
-           [HttpGet]
+
+
+
+
+        [HttpGet]
         
         public IActionResult UnFollow()
         {

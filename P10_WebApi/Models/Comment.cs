@@ -12,9 +12,9 @@ public class Comment : BaseEntity
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string? CommentId { get; set; } 
-    public required string PostId { get; set; }    
-    public  required string UserId { get; set; }   
+    // manually generate _id for sub documents becoz mongo db.driver doesnot create _ids for sub documents
+    public string CommentId { get; set; } = ObjectId.GenerateNewId().ToString();
+    public  ObjectId? UserId { get; set; }   
     public required string CommentText { get; set; }
     public bool FlaggedForReport { get; set; } = false;
     public bool IsEdited { get; set; } = false;

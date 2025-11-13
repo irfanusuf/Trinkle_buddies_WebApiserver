@@ -67,12 +67,62 @@ namespace P10_WebApi.Controllers
 
 
         [Authroize]
-        [HttpPost("like")]
-
+        [HttpGet("like")]
+        // Removelike home work
         public async Task<ActionResult> LikePost(string postId)
         {
-            // var post = await db.poe
-            return Ok();
+
+            string? loggedInUserId = HttpContext.Items["userId"] as string;
+            Post existingPost = await db.Posts.Find(p => p.PostId == postId).FirstOrDefaultAsync();
+
+            if (existingPost == null)
+            {
+                return NotFound();
+            }
+            var filterPost = Builders<Post>.Filter.Eq(p => p.PostId, postId);
+
+            var updatePost = Builders<Post>.Update.Push(p => p.Likes, ObjectId.Parse(loggedInUserId));
+
+            await db.Posts.UpdateOneAsync(filterPost, updatePost);
+
+
+            return Ok(new { message = "liked post succesfully!" });
         }
+    
+
+
+
+
+        [Authroize]
+        [HttpPost("comment")]
+    
+        public async Task<ActionResult> CommentOnPost(string postId , Comment req)
+        {
+
+            string? loggedInUserId = HttpContext.Items["userId"] as string;
+
+            Post existingPost = await db.Posts.Find(p => p.PostId == postId).FirstOrDefaultAsync();
+
+            if (existingPost == null)
+            {
+                return NotFound();
+            }
+
+            req.UserId = ObjectId.Parse(loggedInUserId) ;
+
+            var filterPost = Builders<Post>.Filter.Eq(p => p.PostId, postId);
+
+            var updatePost = Builders<Post>.Update.Push(p => p.Comments, req);
+
+            await db.Posts.UpdateOneAsync(filterPost, updatePost);
+
+
+            return Ok(new { message = "Commented on  post succesfully!" });
+        }
+    
+
+    
+    
+    
     }
 }
